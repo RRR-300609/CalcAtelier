@@ -280,6 +280,31 @@ li.swp{transition:transform .2s}
 .app[data-lay=phone] #rl li,.app[data-lay=land] #rl li{gap:2px}.app[data-lay=phone] #rl .ib,.app[data-lay=phone] #rl .sw,.app[data-lay=land] #rl .ib,.app[data-lay=land] #rl .sw{min-width:30px;width:30px;min-height:36px;padding:0;font-size:14px}.app[data-lay=phone] .ei,.app[data-lay=land] .ei{min-height:36px;flex:1 1 90px}.app[data-lay=phone] #rl .sw i,.app[data-lay=land] #rl .sw i{width:18px;height:18px}
 .app.g[data-lay=phone] .gr{--cvr:minmax(0,3.5fr) minmax(0,1fr)}.app.g[data-lay=phone] .gr[style*=--cvr]{}
 .app[data-lay=phone] #tb,.app[data-lay=phone] #tb *{touch-action:none}
+
+/* Hide recent chips while keeping the system keyboard button visible after Templates. */
+#rec{display:none!important}
+.app[data-lay=phone] #skb,.app[data-lay=land] #skb{display:inline-flex;align-items:center;justify-content:center;flex:none}
+@media(max-width:360px){.app[data-lay=phone] #dock .strip{gap:3px}.app[data-lay=phone] #dock .strip .mb2{padding:0 5px;font-size:11px}.app[data-lay=phone] #dock #skb{width:30px;min-width:30px}}
+
+/* iPhone Safari calculator: fit every key in the live viewport without keypad scrolling. */
+@media (pointer:coarse) and (orientation:portrait){
+html,body{height:100%;height:100dvh;overflow:hidden}
+.app[data-lay=phone]:not(.g){height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:calc(6px + env(safe-area-inset-top,0px)) calc(6px + env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) calc(6px + env(safe-area-inset-left,0px));gap:5px}
+.app[data-lay=phone]:not(.g) .bar{height:32px;min-height:32px;flex:none;padding:0 6px}
+.app[data-lay=phone]:not(.g) .body{flex:1 1 0;min-height:0;grid-template-rows:minmax(64px,14dvh) minmax(0,1fr);gap:5px;overflow:hidden}
+.app[data-lay=phone]:not(.g) .disp{min-height:0;min-width:0;padding:8px 12px}
+.app[data-lay=phone]:not(.g) .pad{min-height:0;min-width:0;overflow:hidden;padding:4px;gap:0}
+.app[data-lay=phone]:not(.g) #kp{--g:clamp(3px,1vw,5px);--kmin:0px;min-height:0;grid-template-rows:repeat(10,minmax(0,1fr))}
+.app[data-lay=phone]:not(.g) #kp .k{min-height:0;padding:0 1px;font-size:clamp(12px,min(4.2cqi,2.4dvh),18px)}
+}
+@media (pointer:coarse) and (orientation:landscape){
+.app[data-lay=land]:not(.g){height:100vh;height:100dvh;min-height:0;overflow:hidden}
+.app[data-lay=land]:not(.g) .body{min-height:0;overflow:hidden;grid-template-rows:minmax(58px,12dvh) minmax(0,1fr);gap:5px}
+.app[data-lay=land]:not(.g) .disp{min-height:0;padding:4px 12px}
+.app[data-lay=land]:not(.g) .pad{min-height:0;overflow:hidden;padding:4px;gap:0}
+.app[data-lay=land]:not(.g) #kp{--g:4px;--kmin:0px;min-height:0;grid-template-rows:repeat(5,minmax(0,1fr))}
+.app[data-lay=land]:not(.g) #kp .k{min-height:0;padding:0 1px;font-size:clamp(12px,min(3cqi,5dvh),20px)}
+}
 </style></head><body>
 <div class="field"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i></div>
 <div class="app" id="app">
@@ -939,7 +964,7 @@ function cpOpen(){sh.classList.remove('open');ks.classList.remove('open');cp.cla
 cpi.addEventListener('input',()=>{csel=0;cpDraw()});
 cpi.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();csel=(csel+(e.key==='ArrowDown'?1:-1)+cmds.length)%Math.max(1,cmds.length);cpDraw();const s=cpl.children[csel];if(s&&s.scrollIntoView)s.scrollIntoView({block:'nearest'})}else if(e.key==='Enter'){e.preventDefault();cpRun(csel)}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cpClose()}});
 addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();e.stopPropagation();cp.classList.contains('open')?cpClose():cpOpen()}},true);
-const kb2=document.createElement('button');kb2.className='ib';kb2.id='cpb';kb2.textContent='⌘K';kb2.setAttribute('aria-label','Command palette');kb2.onclick=cpOpen;$('#kb').before(kb2);
+const kb2=document.createElement('button');kb2.className='ib';kb2.id='cpb';kb2.textContent='⌘K';kb2.setAttribute('aria-label','Command palette');kb2.onclick=()=>cp.classList.contains('open')?cpClose():cpOpen();$('#kb').before(kb2);
 /* arrow keys nudge the trace point */
 var tl=null;const t0=trace;trace=function(px,py,e){tl={px,py};return t0(px,py,e)};
 addEventListener('keydown',e=>{if(!app.classList.contains('g'))return;const t=e.target;if(t.matches&&t.matches('input,textarea,select'))return;if(e.metaKey||e.ctrlKey||e.altKey)return;
