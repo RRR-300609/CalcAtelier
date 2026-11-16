@@ -1098,7 +1098,7 @@ const into=c=>{ES.car.c=c;ES.car.i=0},after=n=>{ES.car.c=n.par;ES.car.i=idxIn(n)
 function opStart(c,i){let j=i-1;while(j>=0){const n=c.a[j];if(n.k==='p'||n.k==='s'){j--;continue}if(n.k==='g'||n.k==='fr'||n.k==='n'||n.k==='c'||n.k==='v')return j;return-1}return-1}
 function autoX(){const cc=ES.car.c;if(cc.p&&cc.p.k==='g'&&cc===cc.p.sub)into(cc.p.ch);const p=ES.car.c.a[ES.car.i-1];if(isVal(p))put1(nd('ax'))}
 function exitSlots(op){const car=ES.car;let first=true;while(car.c.kind==='slot'){const c=car.c,o=c.p;if(first&&op==='−'&&c.a.length===0)return;first=false;
-if(o.k==='s')return;else if(o.k==='fr'){after(o)}else if(o.k==='g'){if(c===o.idx&&o.kind==='rad'&&o.ch.a.length){after(o)}else{into(o.ch)}return}else return}}
+if(o.k==='s')return;else if(o.k==='fr'){if(ES.graph&&c===o.den)return;after(o)}else if(o.k==='g'){if(c===o.idx&&o.kind==='rad'&&o.ch.a.length){after(o)}else{into(o.ch)}return}else return}}
 const ED={};
 ED.digit=d=>{const c=ES.car.c,p=c.a[ES.car.i-1];if(p&&p.k==='n'&&!p.fx){if(p.v.replace(/\D/g,'').length>=15)return;if(p.v==='0')p.v=d;else p.v+=d;return}if(p&&p.k==='n'&&p.fx)autoX();put1(nd('n',{v:d}))};
 ED.dot=()=>{const p=ES.car.c.a[ES.car.i-1];if(p&&p.k==='n'&&!p.fx){if(!p.v.includes('.'))p.v+='.';return}if(p&&p.k==='n'&&p.fx)autoX();put1(nd('n',{v:'0.'}))};
