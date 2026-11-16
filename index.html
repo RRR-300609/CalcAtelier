@@ -1098,21 +1098,21 @@ const into=c=>{ES.car.c=c;ES.car.i=0},after=n=>{ES.car.c=n.par;ES.car.i=idxIn(n)
 function opStart(c,i){let j=i-1;while(j>=0){const n=c.a[j];if(n.k==='p'||n.k==='s'){j--;continue}if(n.k==='g'||n.k==='fr'||n.k==='n'||n.k==='c'||n.k==='v')return j;return-1}return-1}
 function autoX(){const cc=ES.car.c;if(cc.p&&cc.p.k==='g'&&cc===cc.p.sub)into(cc.p.ch);const p=ES.car.c.a[ES.car.i-1];if(isVal(p))put1(nd('ax'))}
 function exitSlots(op){const car=ES.car;let first=true;while(car.c.kind==='slot'){const c=car.c,o=c.p;if(first&&op==='−'&&c.a.length===0)return;first=false;
-if(o.k==='s'||o.k==='fr'){after(o)}else if(o.k==='g'){if(c===o.idx&&o.kind==='rad'&&o.ch.a.length){after(o)}else{into(o.ch)}return}else return}}
+if(o.k==='s')return;else if(o.k==='fr'){after(o)}else if(o.k==='g'){if(c===o.idx&&o.kind==='rad'&&o.ch.a.length){after(o)}else{into(o.ch)}return}else return}}
 const ED={};
 ED.digit=d=>{const c=ES.car.c,p=c.a[ES.car.i-1];if(p&&p.k==='n'&&!p.fx){if(p.v.replace(/\D/g,'').length>=15)return;if(p.v==='0')p.v=d;else p.v+=d;return}if(p&&p.k==='n'&&p.fx)autoX();put1(nd('n',{v:d}))};
 ED.dot=()=>{const p=ES.car.c.a[ES.car.i-1];if(p&&p.k==='n'&&!p.fx){if(!p.v.includes('.'))p.v+='.';return}if(p&&p.k==='n'&&p.fx)autoX();put1(nd('n',{v:'0.'}))};
 ED.oper=(o,raw)=>{exitSlots(o);const c=ES.car.c,p=c.a[ES.car.i-1],ar='+−×÷'.includes(o);if(!p&&o!=='−')return;
 if(p&&p.k==='o'&&'+−×÷'.includes(p.v)&&ar){p.v=o;p.raw=raw;return}put1(nd('o',{v:o,raw}))};
 ED.open=()=>{autoX();const g=mkg('paren');put1(g);into(g.ch)};
-ED.close=()=>{let c=ES.car.c;while(c){const o=c.p;if(!o)break;if(o.k==='g'&&c===o.ch&&(o.kind==='paren'||o.kind==='fn'||o.kind==='rad')){o.solid=true;after(o);const sp=ES.car.c;if(sp.kind==='slot'&&sp.a.length===1&&sp.p.k==='s')after(sp.p);return true}c=o.par}return false};
+ED.close=()=>{let c=ES.car.c;while(c){const o=c.p;if(!o)break;if(o.k==='g'&&c===o.ch&&(o.kind==='paren'||o.kind==='fn'||o.kind==='rad')){o.solid=true;after(o);return true}if(o.k==='s'&&c===o.ch){after(o);return true}if(o.k==='fr'&&c===o.den){after(o);return true}c=o.par}return false};
 ED.fn=(name,disp)=>{autoX();const g=mkg('fn',{name,disp:disp||name});put1(g);into(g.ch)};
 ED.sqrt=()=>{autoX();const g=mkg('rad');put1(g);into(g.ch)};
 ED.cbrt=()=>{autoX();const g=mkg('rad');g.idx=mkc(g,'slot');link(nd('n',{v:'3',fx:true}),g.idx,0);put1(g);into(g.ch)};
 ED.logb=()=>{autoX();const g=mkg('fn',{name:'log',disp:'log'});g.sub=mkc(g,'slot');put1(g);into(g.sub)};
 ED.expBase=b=>{autoX();put1(b==='e'?nd('c',{v:'e'}):nd('n',{v:b,fx:true}));const s=scr();put1(s);into(s.ch)};
 ED.sq=e=>{if(opStart(ES.car.c,ES.car.i)<0)return;const s=scr();link(nd('n',{v:e,fx:true}),s.ch,0);put1(s)};
-ED.pow=()=>{if(opStart(ES.car.c,ES.car.i)<0)return;const s=scr();put1(s);into(s.ch)};
+ED.pow=()=>{if(opStart(ES.car.c,ES.car.i)<0)return;const s=scr();if(ES.graph)s.graphParen=true;put1(s);into(s.ch)};
 ED.fact=()=>{if(opStart(ES.car.c,ES.car.i)<0)return;put1(nd('p',{v:'!'}))};
 ED.pct=()=>{if(opStart(ES.car.c,ES.car.i)<0)return;put1(nd('p',{v:'%'}))};
 function take(){const c=ES.car.c,i=ES.car.i,j=opStart(c,i);if(j<0)return null;return{c,j,ops:c.a.splice(j,i-j)}}
@@ -1156,7 +1156,7 @@ if((m=/^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(rest))){add(nd('n',{v:m[0].re
 if((m=/^[A-Za-z]+/.exec(rest))){const w=m[0];i+=w.length;if(s[i]==='('&&(w==='sqrt'||w==='root'||isFnName(w))){i++;if(w==='sqrt'){const g=mkg('rad');push(g,g.ch)}else{const g=mkg('fn',{name:w,disp:w});push(g,g.ch)}}
 else if(w.toLowerCase()==='pi')add(nd('c',{v:'π'}));else for(const q of w)add(q==='e'?nd('c',{v:'e'}):nd('v',{v:q}));if(off!=null&&off>i-w.length&&off<=i&&!car&&!stack.length)car={c,i:c.a.length};continue}
 if(ch==='π'){add(nd('c',{v:'π'}));i++;continue}
-if(ch==='^'){i++;if(s[i]==='('){const sc=scr();push(sc,sc.ch);i++}else{const sc=scr();add(sc);const r=/^-?(?:\d+\.?\d*|[A-Za-zα-ωΑ-Ω])/.exec(s.slice(i));if(r){const t=r[0];let k=0;if(t[0]==='-'){link(nd('o',{v:'−'}),sc.ch,0);k=1}const nn=t.slice(k);link(/^\d|\./.test(nn)?nd('n',{v:nn}):nd('v',{v:nn}),sc.ch,sc.ch.a.length);i+=t.length;if(off!=null&&off>=i-t.length&&off<=i&&!car)car={c:sc.ch,i:sc.ch.a.length}}}continue}
+if(ch==='^'){i++;if(s[i]==='('){const sc=scr();if(gm)sc.graphParen=true;push(sc,sc.ch);i++}else{const sc=scr();add(sc);const r=/^-?(?:\d+\.?\d*|[A-Za-zα-ωΑ-Ω])/.exec(s.slice(i));if(r){const t=r[0];let k=0;if(t[0]==='-'){link(nd('o',{v:'−'}),sc.ch,0);k=1}const nn=t.slice(k);link(/^\d|\./.test(nn)?nd('n',{v:nn}):nd('v',{v:nn}),sc.ch,sc.ch.a.length);i+=t.length;if(off!=null&&off>=i-t.length&&off<=i&&!car)car={c:sc.ch,i:sc.ch.a.length}}}continue}
 if((ch==='√'||ch==='∛')&&s[i+1]==='('){const g=mkg('rad');if(ch==='∛'){g.idx=mkc(g,'slot');link(nd('n',{v:'3',fx:true}),g.idx,0)}push(g,g.ch);i+=2;continue}
 if(ch==='/'&&gm&&s[i+1]==='('&&opStart(c,c.a.length)>=0){const j=opStart(c,c.a.length),ops=c.a.splice(j,c.a.length-j),f=nd('fr',{});f.num=mkc(f,'num');f.den=mkc(f,'slot');ops.forEach(n=>link(n,f.num,f.num.a.length));add(f);stack.push({n:f});c=f.den;i+=2;continue}
 if(ch==='('){const g=mkg('paren');push(g,g.ch);i++;continue}
@@ -1179,7 +1179,7 @@ case'g':{const cl=!n.nc||evalMode;if(n.kind==='paren'){out+='(';w(n.ch);if(cl)ou
 else if(n.kind==='fn'){const nm=n.name==='log2'?'log':n.name;out+=nm+'(';w(n.ch);if(n.name==='log2')out+=',2';if(n.sub){out+=',';w(n.sub)}if(cl)out+=')'}
 else if(n.kind==='rad'){if(n.idx&&n.idx.a.length){const only3=n.idx.a.length===1&&n.idx.a[0].fx&&n.idx.a[0].v==='3';if(only3){out+='∛('}else{out+='root(';}w(n.ch);if(!only3){out+=',';w(n.idx)}if(cl)out+=')'}else{out+='√(';w(n.ch);if(cl)out+=')'}}
 else if(n.kind==='abs'){out+=evalMode?'abs(':'|';w(n.ch);if(cl)out+=evalMode?')':'|'}else if(n.kind==='brace'){out+='{';w(n.ch);if(cl)out+='}'}else{out+='[';w(n.ch);if(cl)out+=']'}break}
-case's':if(simple(n.ch)&&!evalMode){out+='^';w(n.ch)}else{out+='^(';w(n.ch);out+=')'}break;
+case's':if(simple(n.ch)&&!evalMode&&!n.graphParen){out+='^';w(n.ch)}else{out+='^(';w(n.ch);out+=')'}break;
 case'fr':if(n.num.a.length===1&&(n.num.a[0].k!=='o')){w(n.num)}else{out+='(';w(n.num);out+=')'}out+='/(';w(n.den);out+=')';break}}
 w(root);return{s:out,pos:pos<0?out.length:pos}}
 /* graph rows use the same engine through text */
