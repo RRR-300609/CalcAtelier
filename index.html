@@ -1185,7 +1185,7 @@ w(root);return{s:out,pos:pos<0?out.length:pos}}
 /* graph rows use the same engine through text */
 function gedit(el,fn){const P=fromText(el.value,'graph',el.selectionStart),sv=ES;ES={root:P.root,car:P.car,graph:true};try{fn()}finally{const o=toText(ES.root,ES.car);ES=sv;el.value=o.s;el.setSelectionRange(o.pos,o.pos);el.dispatchEvent(new Event('input',{bubbles:true}))}}
 const RELS='=≠<>≤≥';
-function gOp(t,isFn){if(/^\d$/.test(t))return ED.digit(t);if(t==='.')return ED.dot();if(t==='÷'||t==='/')return ED.frac();
+function gOp(t,isFn){if(/^\d$/.test(t))return ED.digit(t);if(t==='.')return ED.dot();if(t==='÷'||t==='/'){if(opStart(ES.car.c,ES.car.i)<0)return;ED.oper('÷','÷');return ED.open()}
 if(t==='+'||t==='×'||t==='*')return ED.oper(t==='*'?'×':t,t);if(t==='−'||t==='-')return ED.oper('−',t);if(t===','||(t.length===1&&RELS.includes(t)))return ED.oper(t);
 if(t==='(')return ED.open();if(t===')')return ED.close();if(t==='^2')return ED.sq('2');if(t==='^3')return ED.sq('3');if(t==='^(‸)')return ED.pow();
 if(t==='√(‸)')return ED.sqrt();if(t==='∛(‸)')return ED.cbrt();if(t==='|‸|')return ED.abs();if(t==='{‸}')return ED.brace();if(t==='π'||t==='e')return ED.cst(t);
@@ -1199,7 +1199,7 @@ function act2(a){const el=target();if(!el)return;el.focus();
 if(a==='bs'){if(!el.value){const r=G.find(x=>x.id==el.closest('li').dataset.id);if(r){const li=el.closest('li'),n=li.previousSibling||li.nextSibling;softDel(r);const q=n&&n.querySelector&&n.querySelector('.ei');if(q)q.focus()}return}if(el.selectionStart!==el.selectionEnd){el.setRangeText('',el.selectionStart,el.selectionEnd,'end');el.dispatchEvent(new Event('input',{bubbles:true}));return}gedit(el,()=>ED.bs());return}
 if(a==='l'||a==='r'){if(el.selectionStart!==el.selectionEnd){const p=a==='l'?el.selectionStart:el.selectionEnd;el.setSelectionRange(p,p);return}const P=fromText(el.value,'graph',el.selectionStart),sv=ES;ES={root:P.root,car:P.car,graph:true};a==='l'?ED.left():ED.right();const o=toText(ES.root,ES.car);ES=sv;el.setSelectionRange(o.pos,o.pos);return}
 if(a==='ent')commit()}
-/* hardware typing in a row: operators exit open slots and / makes a fraction, exactly like the keys */
+/* hardware typing in a row routes division through the same parenthesized denominator as the keypad */
 rl.addEventListener('keydown',e=>{const el=e.target;if(!el.classList||!el.classList.contains('ei')||e.metaKey||e.ctrlKey||e.altKey||e.key.length!==1||el.selectionStart!==el.selectionEnd)return;
 const k=e.key;if(!'+-*/=<>,'.includes(k))return;const P=fromText(el.value,'graph',el.selectionStart);if(k==='/'||P.car.c.kind==='slot'){e.preventDefault();e.stopPropagation();ins3(k==='-'?'−':k,false)}},true);
 /* ===== Scientific calculator on the same engine ===== */
